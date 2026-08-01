@@ -1,6 +1,6 @@
 export type Theme = 'dark' | 'light' | 'system'
 export type Skin = 'pickle' | 'graphite' | 'frost'
-export interface Settings { theme: Theme; skin: Skin; https_only: boolean; history_page_size: HistoryPageSize }
+export interface Settings { theme: Theme; skin: Skin; https_only: boolean; history_page_size: HistoryPageSize; speech_engine_id: string }
 export type HistoryPageSize = 10 | 25 | 50
 export interface ConnectionReport {
   state: 'ready' | 'app-unreachable' | 'tailscale-unavailable' | 'tailscale-disconnected' | 'serve-unavailable' | 'serve-not-configured'
@@ -17,6 +17,7 @@ export interface Engine {
   model?: string
   informational: boolean
   live_capable?: boolean
+  install_hint?: string
 }
 
 export interface Health {

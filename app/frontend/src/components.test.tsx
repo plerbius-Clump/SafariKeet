@@ -23,11 +23,14 @@ describe('SettingsSheet', () => {
         skin="graphite"
         httpsOnly={false}
         historyPageSize={25}
+        speechEngineId="automatic"
         health={null}
         onTheme={() => undefined}
         onSkin={() => undefined}
         onHttpsOnly={onHttpsOnly}
         onHistoryPageSize={() => undefined}
+        onSpeechEngine={() => undefined}
+        onRefreshEngines={() => undefined}
         onClose={() => undefined}
       />,
     ))
@@ -42,8 +45,8 @@ describe('SettingsSheet', () => {
   it('explains automatic engine selection and lists other runnable engines', () => {
     const container = document.createElement('div')
     const root = createRoot(container)
-    const preferred = { id: 'preferred', name: 'Preferred engine', available: true, runnable: true, detail: 'Ready', informational: false }
-    const alternative = { id: 'alternative', name: 'Alternative engine', available: true, runnable: true, detail: 'Ready', informational: false }
+    const preferred = { id: 'preferred', name: 'Preferred engine', available: true, runnable: true, detail: 'Ready', informational: false, live_capable: true }
+    const alternative = { id: 'alternative', name: 'Alternative engine', available: true, runnable: true, detail: 'Ready', informational: false, live_capable: true }
     const informational = { id: 'informational', name: 'Detected app', available: true, runnable: false, detail: 'Presence only', informational: true }
 
     act(() => root.render(
@@ -53,20 +56,26 @@ describe('SettingsSheet', () => {
         skin="graphite"
         httpsOnly={false}
         historyPageSize={25}
-        health={{ status: 'ok', ready: true, message: 'Ready', local_only: true, preferred_engine: preferred, engines: [preferred, alternative, informational] }}
+        speechEngineId="automatic"
+        health={{ status: 'ok', ready: true, message: 'Ready', local_only: true, preferred_engine: preferred, preferred_live_engine: preferred, engines: [preferred, alternative, informational] }}
         onTheme={() => undefined}
         onSkin={() => undefined}
         onHttpsOnly={() => undefined}
         onHistoryPageSize={() => undefined}
+        onSpeechEngine={() => undefined}
+        onRefreshEngines={() => undefined}
         onClose={() => undefined}
       />,
     ))
 
-    expect(container.textContent).toContain('Speech engine · Automatic')
+    expect(container.textContent).toContain('Speech engine')
+    expect(container.textContent).toContain('Automatic')
     expect(container.textContent).toContain('Preferred engine')
-    expect(container.textContent).toContain('Manual model and remote-server selection are not available yet.')
-    expect(container.textContent).toContain('Also ready: Alternative engine')
-    expect(container.textContent).not.toContain('Detected app')
+    expect(container.textContent).toContain('Currently Preferred engine')
+    expect(container.textContent).toContain('Alternative engine')
+    expect(container.textContent).toContain('Scan this Mac')
+    expect(container.textContent).toContain('Detected app')
+    expect(container.textContent).toContain('Detected, not an STT adapter')
     act(() => root.unmount())
   })
 })

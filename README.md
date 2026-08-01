@@ -60,10 +60,12 @@ the selected local engine and `./scripts/share.sh status` to check private HTTPS
 
 ## Engines and servers
 
-Today, SafaraKeet automatically detects supported engines on the same Mac as
-the web service and chooses the highest-priority ready engine. Settings reports
-the selected engine and other ready engines; it does not yet let you select a
-model or another processing host.
+SafaraKeet detects common local engines, model caches, and related runtimes on
+the same Mac as the web service. Settings shows ready, batch-only, missing-model,
+and unsupported findings. Automatic chooses the highest-priority live engine;
+you can instead pin any detected engine that is ready for live transcription.
+Batch-only engines remain visible but disabled because the current record button
+uses a live WebSocket stream. Remote processing hosts are not selectable yet.
 
 The browser captures microphone audio and sends it to that Mac over the private
 HTTPS site's secure WebSocket. The Mac performs inference and returns partial
@@ -73,9 +75,9 @@ The planned remote-server flow is:
 
 1. Install a SafaraKeet-compatible transcription server on another machine.
 2. Publish that server at a private HTTPS/WSS address, such as through Tailscale.
-3. In Settings, add its address and test its capabilities.
-4. Select it as the processing server; SafaraKeet sends new microphone audio
-   there while keeping the browser experience unchanged.
+3. In Settings, add its address and test its capabilities and reported models.
+4. Select the processing server and a live-capable model. SafaraKeet sends new
+   microphone audio there while keeping the browser experience unchanged.
 
 This requires a versioned server capability contract, origin checks, and clear
 history ownership. It should support Parakeet, Whisper, MLX, and GPU-backed

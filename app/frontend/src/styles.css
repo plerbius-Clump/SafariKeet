@@ -245,6 +245,15 @@ main { display: grid; gap: 22px; }
 .engine-card { display: flex; gap: 13px; align-items: flex-start; }
 .engine-card strong { font-size: .96rem; }
 .engine-card p, .privacy-note p { margin: 5px 0 0; color: var(--text-muted); font-size: .84rem; line-height: 1.5; overflow-wrap: anywhere; }
+.setting-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.setting-title-row h3 { margin: 0; }
+.engine-refresh { border: 0; background: transparent; color: var(--accent); font: inherit; cursor: pointer; }
+.engine-choice { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 10px; padding: 10px 0; cursor: pointer; }
+.engine-choice + .engine-choice { border-top: 1px solid var(--glass-stroke); }
+.engine-choice input { accent-color: var(--accent); }
+.engine-choice > span:last-child { display: grid; gap: 3px; }
+.engine-choice small { color: var(--text-muted); line-height: 1.35; }
+.engine-choice.disabled { opacity: .58; cursor: default; }
 .privacy-note { position: relative; z-index: 1; padding-top: 23px; }
 
 @keyframes breathe { 50% { transform: scale(1.045); box-shadow: 0 0 25px color-mix(in srgb, var(--accent) 28%, transparent); } }

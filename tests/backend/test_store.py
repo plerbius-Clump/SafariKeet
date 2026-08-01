@@ -85,10 +85,11 @@ def test_transcript_archive_migrates_existing_database(tmp_path):
 def test_settings_default_and_update(tmp_path):
     store = Store(tmp_path / "history.sqlite3")
 
-    assert store.settings() == {"theme": "dark", "skin": "graphite", "https_only": False, "history_page_size": 25}
+    assert store.settings() == {"theme": "dark", "skin": "graphite", "https_only": False, "history_page_size": 25, "speech_engine_id": "automatic"}
     assert store.update_settings({"theme": "system"}) == {
         "theme": "system",
         "skin": "graphite",
         "https_only": False,
         "history_page_size": 25,
+        "speech_engine_id": "automatic",
     }

@@ -410,6 +410,25 @@ def preferred_live_engine(findings: list[EngineFinding]) -> EngineFinding | None
     return min(candidates, key=lambda item: item.priority, default=None)
 
 
+def select_engine(
+    findings: list[EngineFinding], engine_id: str = "automatic", *, require_live: bool = False
+) -> EngineFinding | None:
+    """Resolve a stored choice against fresh detection results."""
+    if engine_id == "automatic":
+        return preferred_live_engine(findings) if require_live else preferred_engine(findings)
+    return next(
+        (
+            item
+            for item in findings
+            if item.id == engine_id
+            and item.runnable
+            and not item.informational
+            and (not require_live or item.live_capable)
+        ),
+        None,
+    )
+
+
 def engine_report() -> dict[str, Any]:
     findings = detect_engines()
     selected = preferred_engine(findings)

@@ -41,6 +41,7 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>('dark')
   const [skin, setSkin] = useState<Skin>('graphite')
   const [httpsOnly, setHttpsOnly] = useState(false)
+  const [speechEngineId, setSpeechEngineId] = useState('automatic')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [editing, setEditing] = useState(false)
@@ -73,6 +74,7 @@ export default function App() {
         setTheme(settings.theme || 'dark')
         setSkin(settings.skin || 'graphite')
         setHttpsOnly(settings.https_only === true)
+        setSpeechEngineId(settings.speech_engine_id || 'automatic')
         const pageSize = settings.history_page_size || 25
         setHistoryPageSize(pageSize)
         await refreshHistory(pageSize, { active: 0, archived: 0 })
@@ -264,6 +266,18 @@ export default function App() {
       .catch((error) => setAlert(error instanceof Error ? error.message : 'Could not save history display settings.'))
   }, [refreshHistory])
 
+  const changeSpeechEngine = useCallback((value: string) => {
+    api.updateSettings({ speech_engine_id: value })
+      .then((settings) => setSpeechEngineId(settings.speech_engine_id))
+      .catch((error) => setAlert(error instanceof Error ? error.message : 'Could not select that speech engine.'))
+  }, [])
+
+  const refreshEngines = useCallback(() => {
+    api.refreshEngines()
+      .then(setHealth)
+      .catch((error) => setAlert(error instanceof Error ? error.message : 'Could not scan for speech engines.'))
+  }, [])
+
   const loopbackHost = window.location.hostname === 'localhost'
   const insecureRemote = !window.isSecureContext && !loopbackHost
 
@@ -331,7 +345,7 @@ export default function App() {
         </button>
       </main>
 
-      <SettingsSheet open={settingsOpen} theme={theme} skin={skin} httpsOnly={httpsOnly} historyPageSize={historyPageSize} health={health} onTheme={changeTheme} onSkin={changeSkin} onHttpsOnly={changeHttpsOnly} onHistoryPageSize={changeHistoryPageSize} onClose={() => setSettingsOpen(false)} />
+      <SettingsSheet open={settingsOpen} theme={theme} skin={skin} httpsOnly={httpsOnly} historyPageSize={historyPageSize} speechEngineId={speechEngineId} health={health} onTheme={changeTheme} onSkin={changeSkin} onHttpsOnly={changeHttpsOnly} onHistoryPageSize={changeHistoryPageSize} onSpeechEngine={changeSpeechEngine} onRefreshEngines={refreshEngines} onClose={() => setSettingsOpen(false)} />
     </div>
   )
 }

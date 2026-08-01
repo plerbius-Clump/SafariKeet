@@ -2,7 +2,7 @@ from dataclasses import replace
 
 import sys
 
-from app.backend.engines import EngineFinding, _which, preferred_engine, preferred_live_engine
+from app.backend.engines import EngineFinding, _which, preferred_engine, preferred_live_engine, select_engine
 
 
 def finding(name: str, priority: int, runnable: bool = True) -> EngineFinding:
@@ -36,6 +36,15 @@ def test_live_selection_is_independent_of_batch_selection():
 
     assert preferred_engine([batch, live]) == batch
     assert preferred_live_engine([batch, live]) == live
+
+
+def test_explicit_engine_selection_requires_live_support_when_requested():
+    batch = finding("Batch", 1)
+    live = replace(finding("Live", 20), live_capable=True, model="synthetic/model")
+
+    assert select_engine([batch, live], "live", require_live=True) == live
+    assert select_engine([batch, live], "batch", require_live=True) is None
+    assert select_engine([batch, live], "missing") is None
 
 
 def test_which_finds_virtual_environment_sibling(monkeypatch, tmp_path):

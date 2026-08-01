@@ -19,6 +19,26 @@ def test_connection_report_is_not_cached(monkeypatch):
     assert response.json()["state"] == "ready"
 
 
+def test_settings_rejects_batch_only_engine_for_live_recording(tmp_path, monkeypatch):
+    batch = EngineFinding(
+        id="batch-only",
+        name="Batch only",
+        available=True,
+        runnable=True,
+        priority=1,
+        detail="synthetic batch adapter",
+    )
+    monkeypatch.setattr(main, "store", Store(tmp_path / "history.sqlite3"))
+    monkeypatch.setattr(main, "detect_engines", lambda: [batch])
+
+    response = TestClient(main.app).patch(
+        "/api/settings", json={"speech_engine_id": "batch-only"}
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"] == "That speech engine is not ready for live transcription"
+
+
 def test_transcribe_persists_mocked_local_result(tmp_path, monkeypatch):
     engine = EngineFinding(
         id="test-engine",

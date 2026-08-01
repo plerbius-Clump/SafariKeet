@@ -184,6 +184,7 @@ class Store:
             "skin": "graphite",
             "https_only": False,
             "history_page_size": 25,
+            "speech_engine_id": "automatic",
         }
         with closing(self._connect()) as connection:
             rows = connection.execute("SELECT key, value FROM settings").fetchall()

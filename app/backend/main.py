@@ -11,12 +11,12 @@ from typing import Annotated, Literal
 from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from . import live
 from .config import MAX_AUDIO_BYTES, database_path
 from .doctor import connection_report
-from .engines import engine_report, preferred_engine, run_transcription
+from .engines import detect_engines, engine_report, preferred_engine, run_transcription, select_engine
 from .store import Store
 
 
@@ -46,6 +46,7 @@ class SettingsPatch(BaseModel):
     skin: Literal["pickle", "graphite", "frost"] | None = None
     https_only: bool | None = None
     history_page_size: Literal[10, 25, 50] | None = None
+    speech_engine_id: str | None = Field(default=None, max_length=100)
 
 
 class ArchivePatch(BaseModel):
@@ -198,7 +199,24 @@ def get_settings() -> dict:
 
 @app.patch("/api/settings")
 def update_settings(patch: SettingsPatch) -> dict:
-    return store.update_settings(patch.model_dump(exclude_none=True))
+    values = patch.model_dump(exclude_none=True)
+    engine_id = values.get("speech_engine_id")
+    if engine_id and engine_id != "automatic":
+        findings = detect_engines()
+        if not any(item.id == engine_id for item in findings):
+            raise HTTPException(status_code=422, detail="That speech engine was not detected")
+        if select_engine(findings, engine_id, require_live=True) is None:
+            raise HTTPException(
+                status_code=422,
+                detail="That speech engine is not ready for live transcription",
+            )
+    return store.update_settings(values)
+
+
+@app.post("/api/engines/refresh")
+def refresh_engines() -> dict:
+    detect_engines.cache_clear()
+    return engine_report()
 
 
 @app.post("/api/transcribe")
@@ -233,7 +251,7 @@ async def transcribe(
 async def live_transcribe(websocket: WebSocket) -> None:
     await websocket.accept()
     report = engine_report()
-    selected = report.get("preferred_live_engine")
+    selected = selected_live_engine_from_report(report)
     if not live.supports_streaming(selected):
         await websocket.send_json(
             {
@@ -293,14 +311,20 @@ async def live_transcribe(websocket: WebSocket) -> None:
 
 
 def preferred_engine_from_report(report: dict):
-    selected = report.get("preferred_engine")
-    if not selected:
+    engine_id = store.settings().get("speech_engine_id", "automatic")
+    if engine_id != "automatic":
+        return select_engine(detect_engines(), engine_id)
+    if not report.get("preferred_engine"):
         return None
-    # Re-detect into the dataclass used by the adapter. Detection is cheap and avoids
-    # making subprocess execution depend on untrusted request data.
-    from .engines import detect_engines
-
     return preferred_engine(detect_engines())
+
+
+def selected_live_engine_from_report(report: dict) -> dict | None:
+    engine_id = store.settings().get("speech_engine_id", "automatic")
+    if engine_id == "automatic":
+        return report.get("preferred_live_engine")
+    selected = select_engine(detect_engines(), engine_id, require_live=True)
+    return selected.public() if selected else None
 
 
 FRONTEND_DIST = Path(__file__).resolve().parents[1] / "frontend" / "dist"

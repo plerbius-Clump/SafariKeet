@@ -210,18 +210,21 @@ interface SettingsSheetProps {
   skin: Skin
   httpsOnly: boolean
   historyPageSize: HistoryPageSize
+  speechEngineId: string
   health: Health | null
   onTheme: (theme: Theme) => void
   onSkin: (skin: Skin) => void
   onHttpsOnly: (value: boolean) => void
   onHistoryPageSize: (value: HistoryPageSize) => void
+  onSpeechEngine: (value: string) => void
+  onRefreshEngines: () => void
   onClose: () => void
 }
 
-export function SettingsSheet({ open, theme, skin, httpsOnly, historyPageSize, health, onTheme, onSkin, onHttpsOnly, onHistoryPageSize, onClose }: SettingsSheetProps) {
+export function SettingsSheet({ open, theme, skin, httpsOnly, historyPageSize, speechEngineId, health, onTheme, onSkin, onHttpsOnly, onHistoryPageSize, onSpeechEngine, onRefreshEngines, onClose }: SettingsSheetProps) {
   if (!open) return null
-  const selectedEngine = health?.preferred_engine
-  const alternativeEngines = health?.engines.filter((engine) => engine.runnable && !engine.informational && engine.id !== selectedEngine?.id) || []
+  const engines = health?.engines || []
+  const automaticEngine = health?.preferred_live_engine || health?.preferred_engine
   return (
     <div className="sheet-layer" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section className="settings-sheet glass-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
@@ -230,7 +233,23 @@ export function SettingsSheet({ open, theme, skin, httpsOnly, historyPageSize, h
         <div className="setting-block"><h3>Skin</h3><div className="option-control skin-control glass-control">{(['pickle', 'graphite', 'frost'] as Skin[]).map((value) => <button key={value} className={skin === value ? 'selected' : ''} onClick={() => onSkin(value)}><i className={`skin-swatch skin-${value}`} />{capitalize(value)}</button>)}</div></div>
         <div className="setting-block"><h3>Connection</h3><label className="toggle-row"><span><strong>Require HTTPS</strong><small>Opt in to blocking recording on HTTP connections.</small></span><input type="checkbox" checked={httpsOnly} onChange={(event) => onHttpsOnly(event.target.checked)} /><i aria-hidden="true" /></label><p className="connection-note">{!window.isSecureContext ? 'This page is using HTTP. SafaraKeet allows it, but common browsers block microphone access on remote HTTP addresses.' : 'For fewer microphone prompts, keep using this exact address and set Microphone to Allow in the browser’s website settings.'}</p></div>
         <div className="setting-block"><h3>History</h3><label className="history-setting">Blocks per page <select value={historyPageSize} onChange={(event) => onHistoryPageSize(Number(event.target.value) as HistoryPageSize)} aria-label="Blocks per history page"><option value="10">10</option><option value="25">25</option><option value="50">50</option></select></label></div>
-        <div className="setting-block"><h3>Speech engine · Automatic</h3><div className="engine-card"><span className={`status-dot ${health?.ready ? 'ready' : ''}`} /><div><strong>{selectedEngine?.name || 'No engine ready'}</strong><p>{selectedEngine ? 'Selected automatically as the preferred runnable engine. Manual model and remote-server selection are not available yet.' : health?.message || 'Checking this Mac…'}</p>{alternativeEngines.length ? <p>Also ready: {alternativeEngines.map((engine) => engine.name).join(', ')}</p> : health ? <p>No other runnable engines detected.</p> : null}</div></div></div>
+        <div className="setting-block engine-settings">
+          <div className="setting-title-row"><h3>Speech engine</h3><button className="engine-refresh" onClick={onRefreshEngines}>Scan this Mac</button></div>
+          <p className="connection-note">Explore detected models and runtimes. Choose Automatic, or pin an engine that is ready for live transcription.</p>
+          <label className={`engine-choice ${speechEngineId === 'automatic' ? 'selected' : ''}`}>
+            <input type="radio" name="speech-engine" checked={speechEngineId === 'automatic'} onChange={() => onSpeechEngine('automatic')} />
+            <span className={`status-dot ${automaticEngine ? 'ready' : ''}`} />
+            <span><strong>Automatic</strong><small>{automaticEngine ? `Currently ${automaticEngine.name}` : 'No live engine ready'}</small></span>
+          </label>
+          {engines.map((engine) => {
+            const selectable = engine.runnable && engine.live_capable
+            return <label key={engine.id} className={`engine-choice ${speechEngineId === engine.id ? 'selected' : ''} ${selectable ? '' : 'disabled'}`}>
+              <input type="radio" name="speech-engine" checked={speechEngineId === engine.id} disabled={!selectable} onChange={() => onSpeechEngine(engine.id)} />
+              <span className={`status-dot ${selectable ? 'ready' : ''}`} />
+              <span><strong>{engine.name}</strong><small>{engine.detail}{engine.runnable && !engine.live_capable ? ' · Batch only' : engine.informational ? ' · Detected, not an STT adapter' : ''}</small>{engine.install_hint ? <small>{engine.install_hint}</small> : null}</span>
+            </label>
+          })}
+        </div>
         <div className="privacy-note"><strong>On this Mac</strong><p>Audio streams to this Mac through your private connection. The Mac transcribes it locally and discards it. Saved text remains in local SQLite history until deleted.</p></div>
       </section>
     </div>

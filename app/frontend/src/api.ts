@@ -15,12 +15,13 @@ export const api = {
   history: (archived = false, limit: HistoryPageSize = 25, offset = 0) =>
     request<{ items: Transcript[]; total: number; limit: number; offset: number }>(`/api/history?archived=${archived}&limit=${limit}&offset=${offset}`),
   settings: () => request<Settings>('/api/settings'),
-  updateSettings: (patch: { theme?: Theme; skin?: Skin; https_only?: boolean; history_page_size?: HistoryPageSize }) =>
+  updateSettings: (patch: { theme?: Theme; skin?: Skin; https_only?: boolean; history_page_size?: HistoryPageSize; speech_engine_id?: string }) =>
     request<Settings>('/api/settings', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patch),
     }),
+  refreshEngines: () => request<Health>('/api/engines/refresh', { method: 'POST' }),
   transcribe: (blob: Blob, durationMs: number) => {
     const body = new FormData()
     const extension = blob.type.includes('mp4') ? 'm4a' : blob.type.includes('ogg') ? 'ogg' : 'webm'
