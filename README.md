@@ -58,6 +58,30 @@ the selected local engine and `./scripts/share.sh status` to check private HTTPS
 - Keeps archived blocks recoverable until you delete them.
 - Selects many history blocks at once for archive, restore, or deletion.
 
+## Engines and servers
+
+Today, SafaraKeet automatically detects supported engines on the same Mac as
+the web service and chooses the highest-priority ready engine. Settings reports
+the selected engine and other ready engines; it does not yet let you select a
+model or another processing host.
+
+The browser captures microphone audio and sends it to that Mac over the private
+HTTPS site's secure WebSocket. The Mac performs inference and returns partial
+and final text. The model is not loaded or run in the browser.
+
+The planned remote-server flow is:
+
+1. Install a SafaraKeet-compatible transcription server on another machine.
+2. Publish that server at a private HTTPS/WSS address, such as through Tailscale.
+3. In Settings, add its address and test its capabilities.
+4. Select it as the processing server; SafaraKeet sends new microphone audio
+   there while keeping the browser experience unchanged.
+
+This requires a versioned server capability contract, origin checks, and clear
+history ownership. It should support Parakeet, Whisper, MLX, and GPU-backed
+adapters behind the server contract rather than teaching the browser every
+engine's command line or vendor API.
+
 ## Troubleshooting
 
 | Problem | Check |

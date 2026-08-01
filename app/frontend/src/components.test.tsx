@@ -64,6 +64,7 @@ describe('SettingsSheet', () => {
 
     expect(container.textContent).toContain('Speech engine · Automatic')
     expect(container.textContent).toContain('Preferred engine')
+    expect(container.textContent).toContain('Manual model and remote-server selection are not available yet.')
     expect(container.textContent).toContain('Also ready: Alternative engine')
     expect(container.textContent).not.toContain('Detected app')
     act(() => root.unmount())
