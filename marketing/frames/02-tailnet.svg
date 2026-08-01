@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <rect width="1080" height="1350" fill="#080a09"/>
+  <circle cx="110" cy="210" r="370" fill="#8a9690" opacity=".10"/>
+  <circle cx="1020" cy="1120" r="430" fill="#58646a" opacity=".12"/>
+  <text x="90" y="500" fill="#f3f6f1" font-family="-apple-system, Helvetica, sans-serif" font-size="76" font-weight="700" letter-spacing="-3">IF YOU ALREADY HAVE</text>
+  <text x="90" y="625" fill="#d5dcd7" font-family="-apple-system, Helvetica, sans-serif" font-size="96" font-weight="700" letter-spacing="-4">A MAC + TAILSCALE.</text>
+  <path d="M90 710h900" stroke="#d5dcd7" stroke-width="2" opacity=".35"/>
+  <text x="92" y="790" fill="#aeb5af" font-family="-apple-system, Helvetica, sans-serif" font-size="40">Private HTTPS. Local speech.</text>
+</svg>

@@ -1,0 +1,1 @@
+"""SafaraKeet application package."""

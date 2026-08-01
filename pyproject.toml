@@ -1,0 +1,26 @@
+[project]
+name = "safarikeet"
+version = "0.1.0"
+description = "Private, local-first dictation for iPad Safari"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.116,<1",
+  "parakeet-mlx>=0.5.1,<0.6",
+  "python-multipart>=0.0.20,<1",
+  "uvicorn[standard]>=0.35,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.28,<1",
+  "pytest>=8.4,<9",
+  "pytest-asyncio>=1.1,<2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100

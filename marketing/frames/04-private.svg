@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <rect width="1080" height="1350" fill="#080a09"/>
+  <circle cx="900" cy="190" r="390" fill="#8a9690" opacity=".11"/>
+  <circle cx="120" cy="1180" r="430" fill="#58646a" opacity=".10"/>
+  <text x="90" y="450" fill="#f3f6f1" font-family="-apple-system, Helvetica, sans-serif" font-size="94" font-weight="700" letter-spacing="-4">LOCAL SPEECH.</text>
+  <text x="90" y="570" fill="#d5dcd7" font-family="-apple-system, Helvetica, sans-serif" font-size="74" font-weight="700" letter-spacing="-3">PRIVATE CONNECTION.</text>
+  <text x="90" y="690" fill="#f3f6f1" font-family="-apple-system, Helvetica, sans-serif" font-size="94" font-weight="700" letter-spacing="-4">YOUR WORDS.</text>
+  <path d="M90 790h330" stroke="#d5dcd7" stroke-width="4"/>
+  <text x="92" y="885" fill="#aeb5af" font-family="-apple-system, Helvetica, sans-serif" font-size="44">SafariKeet</text>
+</svg>

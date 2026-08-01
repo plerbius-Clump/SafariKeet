@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <rect width="1080" height="1350" fill="#080a09"/>
+  <circle cx="920" cy="120" r="330" fill="#58646a" opacity=".14"/>
+  <rect x="70" y="120" width="940" height="1110" rx="42" fill="#151613" stroke="#d5dcd7" stroke-opacity=".25" stroke-width="2"/>
+  <text x="125" y="225" fill="#f3f6f1" font-family="-apple-system, Helvetica, sans-serif" font-size="48" font-weight="650">SafariKeet</text>
+  <circle cx="895" cy="205" r="10" fill="#d5dcd7"/>
+  <text x="125" y="355" fill="#d5dcd7" font-family="-apple-system, Helvetica, sans-serif" font-size="30" letter-spacing="2">RECORDING  •  0:12</text>
+  <text x="125" y="525" fill="#f3f6f1" font-family="-apple-system, Helvetica, sans-serif" font-size="68" font-weight="600" letter-spacing="-2">Capture the thought</text>
+  <text x="125" y="615" fill="#f3f6f1" font-family="-apple-system, Helvetica, sans-serif" font-size="68" font-weight="600" letter-spacing="-2">while it is still forming.</text>
+  <text x="125" y="745" fill="#aeb5af" font-family="-apple-system, Helvetica, sans-serif" font-size="30">Live • English • On this Mac</text>
+  <rect x="125" y="845" width="385" height="105" rx="20" fill="#d5dcd7"/>
+  <text x="190" y="912" fill="#161a18" font-family="-apple-system, Helvetica, sans-serif" font-size="32" font-weight="700">PAUSE &amp; SAVE</text>
+  <rect x="535" y="845" width="385" height="105" rx="20" fill="#ffffff" fill-opacity=".06" stroke="#ffffff" stroke-opacity=".14"/>
+  <text x="595" y="912" fill="#f3f6f1" font-family="-apple-system, Helvetica, sans-serif" font-size="32" font-weight="650">COPY PARTIAL</text>
+</svg>
