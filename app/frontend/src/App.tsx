@@ -272,8 +272,8 @@ export default function App() {
       <header className="app-header">
         <div className="brand"><Mark /><span>SafariKeet</span></div>
         <button className="status-button glass-control" onClick={() => setSettingsOpen(true)}>
-          <span className={`status-dot ${health?.ready ? 'ready' : ''}`} />
-          <span><strong>{health?.ready ? 'Ready' : 'Check engine'}</strong><small>On this Mac</small></span>
+          <span className={`status-dot ${health?.live_ready ? 'ready' : ''}`} />
+          <span><strong>{health?.live_ready ? 'Ready' : 'Check live engine'}</strong><small>On this Mac</small></span>
         </button>
       </header>
 

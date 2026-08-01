@@ -4,27 +4,27 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
-from .engines import PARAKEET_110M
-
 SAMPLE_RATE = 16_000
 MAX_CHUNK_BYTES = SAMPLE_RATE * 4 * 5
 STREAM_OPEN_TIMEOUT_SECONDS = 12
 
 _executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="safarakeet-live")
 _model: Any | None = None
+_model_id: str | None = None
 session_lock = asyncio.Lock()
 
 
 def supports_streaming(engine: dict | None) -> bool:
-    return bool(engine and str(engine.get("id", "")).startswith("parakeet-mlx-"))
+    return bool(engine and engine.get("live_capable") and engine.get("model"))
 
 
-def _load_model():
-    global _model
-    if _model is None:
+def _load_model(model_id: str):
+    global _model, _model_id
+    if _model is None or _model_id != model_id:
         from parakeet_mlx import from_pretrained
 
-        _model = from_pretrained(PARAKEET_110M)
+        _model = from_pretrained(model_id)
+        _model_id = model_id
     return _model
 
 
@@ -33,20 +33,20 @@ async def _inference(function, *args):
     return await loop.run_in_executor(_executor, function, *args)
 
 
-async def warm_model() -> None:
-    await _inference(_load_model)
+async def warm_model(engine: dict) -> None:
+    await _inference(_load_model, engine["model"])
 
 
-def _open_stream():
-    stream = _load_model().transcribe_stream()
+def _open_stream(model_id: str):
+    stream = _load_model(model_id).transcribe_stream()
     stream.__enter__()
     return stream
 
 
-async def open_stream():
+async def open_stream(engine: dict):
     try:
         return await asyncio.wait_for(
-            _inference(_open_stream), timeout=STREAM_OPEN_TIMEOUT_SECONDS
+            _inference(_open_stream, engine["model"]), timeout=STREAM_OPEN_TIMEOUT_SECONDS
         )
     except TimeoutError as exc:
         raise RuntimeError(

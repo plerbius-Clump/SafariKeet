@@ -55,10 +55,13 @@ def test_live_transcription_streams_and_persists_block(tmp_path, monkeypatch):
         runnable=True,
         priority=1,
         detail="synthetic streaming adapter",
+        model="synthetic/live-model",
+        live_capable=True,
     )
     stream = object()
 
-    async def open_stream():
+    async def open_stream(selected):
+        assert selected["model"] == "synthetic/live-model"
         return stream
 
     async def add_audio(selected_stream, raw):
@@ -77,7 +80,7 @@ def test_live_transcription_streams_and_persists_block(tmp_path, monkeypatch):
     monkeypatch.setattr(
         main,
         "engine_report",
-        lambda: {"preferred_engine": engine.public(), "engines": []},
+        lambda: {"preferred_engine": engine.public(), "preferred_live_engine": engine.public(), "engines": []},
     )
     monkeypatch.setattr(main.live, "open_stream", open_stream)
     monkeypatch.setattr(main.live, "add_audio", add_audio)
@@ -110,15 +113,18 @@ def test_live_transcription_reports_stream_startup_error(monkeypatch):
         runnable=True,
         priority=1,
         detail="synthetic streaming adapter",
+        model="synthetic/live-model",
+        live_capable=True,
     )
 
-    async def open_stream():
+    async def open_stream(selected):
+        assert selected["model"] == "synthetic/live-model"
         raise RuntimeError("Synthetic live engine startup failure.")
 
     monkeypatch.setattr(
         main,
         "engine_report",
-        lambda: {"preferred_engine": engine.public(), "engines": []},
+        lambda: {"preferred_engine": engine.public(), "preferred_live_engine": engine.public(), "engines": []},
     )
     monkeypatch.setattr(main.live, "open_stream", open_stream)
 

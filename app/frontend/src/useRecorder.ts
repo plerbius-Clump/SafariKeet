@@ -68,6 +68,7 @@ export function useRecorder(
   const startedAtRef = useRef(0)
   const sessionActiveRef = useRef(false)
   const completedRef = useRef(false)
+  const finalizingRef = useRef(false)
 
   const releaseCapture = useCallback(() => {
     if (processorRef.current) processorRef.current.onaudioprocess = null
@@ -89,6 +90,8 @@ export function useRecorder(
     socketRef.current = null
     if (socket && socket.readyState < WebSocket.CLOSING) socket.close()
     sessionActiveRef.current = false
+    finalizingRef.current = false
+    startedAtRef.current = 0
     pendingRef.current = new Float32Array()
   }, [releaseCapture])
 
@@ -150,6 +153,7 @@ export function useRecorder(
       streamRef.current = stream
       sessionActiveRef.current = true
       completedRef.current = false
+      finalizingRef.current = false
 
       socket.onopen = async () => {
         if (socketRef.current !== socket) {
@@ -224,7 +228,8 @@ export function useRecorder(
 
   const pause = useCallback(() => {
     const socket = socketRef.current
-    if (!sessionActiveRef.current || !socket || socket.readyState !== WebSocket.OPEN) return
+    if (finalizingRef.current || startedAtRef.current <= 0 || !sessionActiveRef.current || !socket || socket.readyState !== WebSocket.OPEN) return
+    finalizingRef.current = true
     const duration = Math.max(0, Math.round(performance.now() - startedAtRef.current))
     setElapsedMs(duration)
     flush(true)
@@ -232,6 +237,18 @@ export function useRecorder(
     setState('uploading')
     socket.send(JSON.stringify({ type: 'finalize', duration_ms: duration }))
   }, [flush, releaseCapture])
+
+  useEffect(() => {
+    const finalizeIfLeaving = () => {
+      if (document.visibilityState === 'hidden') pause()
+    }
+    document.addEventListener('visibilitychange', finalizeIfLeaving)
+    window.addEventListener('pagehide', pause)
+    return () => {
+      document.removeEventListener('visibilitychange', finalizeIfLeaving)
+      window.removeEventListener('pagehide', pause)
+    }
+  }, [pause])
 
   const reset = useCallback(() => {
     release()

@@ -16,6 +16,7 @@ export interface Engine {
   detail: string
   model?: string
   informational: boolean
+  live_capable?: boolean
 }
 
 export interface Health {
@@ -24,6 +25,9 @@ export interface Health {
   message: string
   local_only: boolean
   preferred_engine: Engine | null
+  preferred_live_engine?: Engine | null
+  batch_ready?: boolean
+  live_ready?: boolean
   engines: Engine[]
 }
 

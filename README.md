@@ -32,9 +32,10 @@ Share → Add to Home Screen and enable “Open as Web App.” Permission belong
 the browser and that exact HTTPS origin; SafaraKeet cannot grant or retain it
 on the browser's behalf.
 
-Keep the web app foregrounded while recording. iOS does not guarantee that a
-browser or Home Screen web app can keep microphone capture alive after an app
-switch or screen lock.
+Keep the web app foregrounded while recording. If you switch apps, SafaraKeet
+stops the microphone and asks the server to save the current block; returning
+does not silently restart recording. iOS can still freeze a web app before that
+final save completes, so background recording is not guaranteed.
 
 ## Everyday use
 
@@ -72,6 +73,10 @@ the selected local engine and `./scripts/share.sh status` to check private HTTPS
   and discarded after processing.
 - Saved transcript text remains in local SQLite history until you delete it.
 - Tailscale Serve limits the HTTPS site to devices authorized by your tailnet.
+- SafaraKeet does not add its own login. Anyone allowed to reach the service by
+  your tailnet access rules can use its transcript-history API.
+- Application logs contain request and error metadata, not audio or transcript
+  bodies. The Mac operator can still read the saved local history database.
 - FluidVoice is neither controlled nor exposed by SafaraKeet.
 
 ## License

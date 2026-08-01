@@ -105,7 +105,7 @@ export function TranscriptResult({ liveText, state, transcript, copied, onCopyPa
       {editing ? <textarea className="result-editor" value={editDraft} onChange={(event) => onEditDraft(event.target.value)} autoFocus aria-label="Edit transcript" /> : <p className={text ? '' : 'result-placeholder'}>{text || 'Your English transcript will appear here while you speak.'}</p>}
       <footer>
         <span className="result-meta">
-          {editing ? 'Edit locally · select any text to copy' : pending ? (finalizing ? 'Finishing on this Mac…' : liveText ? 'Live · English' : 'Private · local') : `${formatDuration(transcript.duration_ms)} · ${transcript.engine}`}
+          {editing ? 'Edit locally · select any text to copy' : pending ? (finalizing ? 'Finishing on this Mac…' : liveText ? 'Live · English' : 'Private · local') : formatDuration(transcript.duration_ms)}
         </span>
         <div className={`result-actions ${transcript && !editing ? 'final-actions' : ''}`}>
           {editing ? (
@@ -220,6 +220,8 @@ interface SettingsSheetProps {
 
 export function SettingsSheet({ open, theme, skin, httpsOnly, historyPageSize, health, onTheme, onSkin, onHttpsOnly, onHistoryPageSize, onClose }: SettingsSheetProps) {
   if (!open) return null
+  const selectedEngine = health?.preferred_engine
+  const alternativeEngines = health?.engines.filter((engine) => engine.runnable && !engine.informational && engine.id !== selectedEngine?.id) || []
   return (
     <div className="sheet-layer" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section className="settings-sheet glass-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
@@ -228,8 +230,8 @@ export function SettingsSheet({ open, theme, skin, httpsOnly, historyPageSize, h
         <div className="setting-block"><h3>Skin</h3><div className="option-control skin-control glass-control">{(['pickle', 'graphite', 'frost'] as Skin[]).map((value) => <button key={value} className={skin === value ? 'selected' : ''} onClick={() => onSkin(value)}><i className={`skin-swatch skin-${value}`} />{capitalize(value)}</button>)}</div></div>
         <div className="setting-block"><h3>Connection</h3><label className="toggle-row"><span><strong>Require HTTPS</strong><small>Opt in to blocking recording on HTTP connections.</small></span><input type="checkbox" checked={httpsOnly} onChange={(event) => onHttpsOnly(event.target.checked)} /><i aria-hidden="true" /></label><p className="connection-note">{!window.isSecureContext ? 'This page is using HTTP. SafaraKeet allows it, but common browsers block microphone access on remote HTTP addresses.' : 'For fewer microphone prompts, keep using this exact address and set Microphone to Allow in the browser’s website settings.'}</p></div>
         <div className="setting-block"><h3>History</h3><label className="history-setting">Blocks per page <select value={historyPageSize} onChange={(event) => onHistoryPageSize(Number(event.target.value) as HistoryPageSize)} aria-label="Blocks per history page"><option value="10">10</option><option value="25">25</option><option value="50">50</option></select></label></div>
-        <div className="setting-block"><h3>Speech engine</h3><div className="engine-card"><span className={`status-dot ${health?.ready ? 'ready' : ''}`} /><div><strong>{health?.preferred_engine?.name || 'No engine ready'}</strong><p>{health?.preferred_engine?.model || health?.message || 'Checking this Mac…'}</p></div></div></div>
-        <div className="privacy-note"><strong>On this Mac</strong><p>Audio streams only to this Mac through your private connection, is transcribed locally, then discarded. Saved text remains in local SQLite history until deleted.</p></div>
+        <div className="setting-block"><h3>Speech engine · Automatic</h3><div className="engine-card"><span className={`status-dot ${health?.ready ? 'ready' : ''}`} /><div><strong>{selectedEngine?.name || 'No engine ready'}</strong><p>{selectedEngine ? 'Selected automatically as the preferred runnable engine.' : health?.message || 'Checking this Mac…'}</p>{alternativeEngines.length ? <p>Also ready: {alternativeEngines.map((engine) => engine.name).join(', ')}</p> : health ? <p>No other runnable engines detected.</p> : null}</div></div></div>
+        <div className="privacy-note"><strong>On this Mac</strong><p>Audio streams to this Mac through your private connection. The Mac transcribes it locally and discards it. Saved text remains in local SQLite history until deleted.</p></div>
       </section>
     </div>
   )

@@ -28,6 +28,7 @@ class EngineFinding:
     test_command: str | None = None
     install_hint: str | None = None
     informational: bool = False
+    live_capable: bool = False
 
     def public(self) -> dict[str, Any]:
         return asdict(self)
@@ -260,6 +261,7 @@ def detect_engines() -> list[EngineFinding]:
                     else None
                 ),
                 install_hint=None if available else "uv tool install parakeet-mlx",
+                live_capable=bool(mlx_module and cached),
             )
         )
 
@@ -401,12 +403,23 @@ def preferred_engine(findings: list[EngineFinding]) -> EngineFinding | None:
     return min(candidates, key=lambda item: item.priority, default=None)
 
 
+def preferred_live_engine(findings: list[EngineFinding]) -> EngineFinding | None:
+    candidates = [
+        item for item in findings if item.live_capable and not item.informational
+    ]
+    return min(candidates, key=lambda item: item.priority, default=None)
+
+
 def engine_report() -> dict[str, Any]:
     findings = detect_engines()
     selected = preferred_engine(findings)
+    live_selected = preferred_live_engine(findings)
     return {
         "engines": [item.public() for item in findings],
         "preferred_engine": selected.public() if selected else None,
+        "preferred_live_engine": live_selected.public() if live_selected else None,
+        "batch_ready": selected is not None,
+        "live_ready": live_selected is not None,
         "ready": selected is not None,
         "message": f"Using {selected.name}" if selected else "No runnable local STT engine was found",
     }

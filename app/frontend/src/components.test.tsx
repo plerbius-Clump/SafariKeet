@@ -38,6 +38,36 @@ describe('SettingsSheet', () => {
     expect(onHttpsOnly).toHaveBeenCalledWith(true)
     act(() => root.unmount())
   })
+
+  it('explains automatic engine selection and lists other runnable engines', () => {
+    const container = document.createElement('div')
+    const root = createRoot(container)
+    const preferred = { id: 'preferred', name: 'Preferred engine', available: true, runnable: true, detail: 'Ready', informational: false }
+    const alternative = { id: 'alternative', name: 'Alternative engine', available: true, runnable: true, detail: 'Ready', informational: false }
+    const informational = { id: 'informational', name: 'Detected app', available: true, runnable: false, detail: 'Presence only', informational: true }
+
+    act(() => root.render(
+      <SettingsSheet
+        open
+        theme="dark"
+        skin="graphite"
+        httpsOnly={false}
+        historyPageSize={25}
+        health={{ status: 'ok', ready: true, message: 'Ready', local_only: true, preferred_engine: preferred, engines: [preferred, alternative, informational] }}
+        onTheme={() => undefined}
+        onSkin={() => undefined}
+        onHttpsOnly={() => undefined}
+        onHistoryPageSize={() => undefined}
+        onClose={() => undefined}
+      />,
+    ))
+
+    expect(container.textContent).toContain('Speech engine · Automatic')
+    expect(container.textContent).toContain('Preferred engine')
+    expect(container.textContent).toContain('Also ready: Alternative engine')
+    expect(container.textContent).not.toContain('Detected app')
+    act(() => root.unmount())
+  })
 })
 
 describe('SecureConnectionNotice', () => {
@@ -66,6 +96,20 @@ describe('TranscriptResult edit mode', () => {
     act(() => root.render(<TranscriptResult {...common} editing editDraft="Edited text." />))
     expect(container.querySelector<HTMLTextAreaElement>('textarea')?.value).toBe('Edited text.')
     expect(Array.from(container.querySelectorAll('button')).map((button) => button.textContent)).toEqual(['Cancel', 'Save & exit'])
+    act(() => root.unmount())
+  })
+})
+
+describe('TranscriptResult completed metadata', () => {
+  it('shows only the recording duration, not the speech engine', () => {
+    const container = document.createElement('div')
+    const root = createRoot(container)
+    const transcript = { id: 'synthetic', text: 'Original text.', created_at: '2026-01-01T00:00:00Z', duration_ms: 3_000, engine: 'Test engine', archived: false }
+    const common = { liveText: '', state: 'success' as const, transcript, copied: false, onCopyPartial: () => undefined, onPause: () => undefined, onCopy: () => undefined, onArchive: () => undefined, onBeginEdit: () => undefined, onEditDraft: () => undefined, onSaveEdit: () => undefined, onCancelEdit: () => undefined }
+
+    act(() => root.render(<TranscriptResult {...common} editing={false} editDraft="" />))
+    expect(container.querySelector('.result-meta')?.textContent).toBe('0:03')
+    expect(container.textContent).not.toContain('Test engine')
     act(() => root.unmount())
   })
 })

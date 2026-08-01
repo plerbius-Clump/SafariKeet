@@ -23,9 +23,10 @@ from .store import Store
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     report = engine_report()
-    if live.supports_streaming(report.get("preferred_engine")):
+    selected = report.get("preferred_live_engine")
+    if live.supports_streaming(selected):
         try:
-            await live.warm_model()
+            await live.warm_model(selected)
         except Exception:
             pass
     yield
@@ -232,7 +233,7 @@ async def transcribe(
 async def live_transcribe(websocket: WebSocket) -> None:
     await websocket.accept()
     report = engine_report()
-    selected = report.get("preferred_engine")
+    selected = report.get("preferred_live_engine")
     if not live.supports_streaming(selected):
         await websocket.send_json(
             {
@@ -247,7 +248,7 @@ async def live_transcribe(websocket: WebSocket) -> None:
     try:
         async with live.session_lock:
             await websocket.send_json({"type": "status", "status": "warming"})
-            stream = await live.open_stream()
+            stream = await live.open_stream(selected)
             await websocket.send_json({"type": "status", "status": "ready"})
 
             while True:
