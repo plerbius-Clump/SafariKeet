@@ -67,6 +67,11 @@ you can instead pin any detected engine that is ready for live transcription.
 Batch-only engines remain visible but disabled because the current record button
 uses a live WebSocket stream. Remote processing hosts are not selectable yet.
 
+The Apple-silicon MLX profile can use Parakeet MLX 110M, 1.1B, and 0.6B
+checkpoints. The 1.1B checkpoint is available as an opt-in engine in Settings;
+the lightweight 110M checkpoint remains the automatic choice when both are
+cached.
+
 The browser captures microphone audio and sends it to that Mac over the private
 HTTPS site's secure WebSocket. The Mac performs inference and returns partial
 and final text. The model is not loaded or run in the browser.

@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 PARAKEET_110M = "mlx-community/parakeet-tdt_ctc-110m"
+PARAKEET_11B = "mlx-community/parakeet-tdt-1.1b"
 PARAKEET_06B_V3 = "mlx-community/parakeet-tdt-0.6b-v3"
 PARAKEET_06B_V2 = "mlx-community/parakeet-tdt-0.6b-v2"
 
@@ -170,7 +171,7 @@ def _parakeet_cpp_model(binary: str | None = None) -> Path | None:
     return _find_model(
         _model_roots(binary, "parakeet"),
         suffixes=(".gguf",),
-        terms=("parakeet", "110m", "tdt_ctc", "0.6b"),
+        terms=("parakeet", "110m", "1.1b", "tdt_ctc", "0.6b"),
     )
 
 
@@ -178,7 +179,7 @@ def _parakeet_port_presence() -> str | None:
     model = _find_model(
         _model_roots(None, "parakeet"),
         suffixes=(".onnx", ".gguf"),
-        terms=("parakeet", "110m", "tdt_ctc", "0.6b"),
+        terms=("parakeet", "110m", "1.1b", "tdt_ctc", "0.6b"),
     )
     return model.name if model else None
 
@@ -235,6 +236,7 @@ def detect_engines() -> list[EngineFinding]:
     mlx_module = _module_available("parakeet_mlx")
     for priority, repo, label in (
         (20, PARAKEET_110M, "Parakeet MLX 110M"),
+        (30, PARAKEET_11B, "Parakeet MLX 1.1B"),
         (40, PARAKEET_06B_V3, "Parakeet MLX 0.6B v3"),
         (45, PARAKEET_06B_V2, "Parakeet MLX 0.6B v2"),
     ):

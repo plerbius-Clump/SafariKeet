@@ -58,10 +58,11 @@ if [ "$prefetch_model" = true ]; then
   HF_HUB_DISABLE_PROGRESS_BARS=1 uv run python - <<'PY'
 from parakeet_mlx import from_pretrained
 
-from app.backend.engines import PARAKEET_110M
+from app.backend.engines import PARAKEET_110M, PARAKEET_11B
 
-from_pretrained(PARAKEET_110M)
-print("local model: ready")
+for model in (PARAKEET_110M, PARAKEET_11B):
+    from_pretrained(model)
+    print(f"local model: ready ({model})")
 PY
 fi
 
